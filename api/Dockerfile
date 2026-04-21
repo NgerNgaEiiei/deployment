@@ -10,12 +10,12 @@ WORKDIR /app
 
 # Cache dependency layer (invalidated only when go.mod/go.sum change)
 COPY go.mod go.sum ./
-RUN go mod download
+COPY vendor/ vendor/
 
-# Copy source and build a static binary
+# Copy source and build a static binary (use vendor — no network needed)
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-    go build -ldflags="-w -s" -o /server .
+    go build -mod=vendor -ldflags="-w -s" -o /server .
 
 # ============================================================
 # Stage 2 – Runtime (minimal scratch image)
